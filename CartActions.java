@@ -26,80 +26,8 @@ public class CartActions extends Baseclass {
         // Wait for PDP to load 
         wait.until(ExpectedConditions.visibilityOfElementLocated(CartLocators.INCREMENT_QTY_BTN));
     }
- 
 
-//    
-//        /**
-//     * Get cart quantity badge count from nav
-//     * @return int — number shown on cart badge
-//     */
-//    public int getCartBadgeCount() {
-//        WebElement badge = wait.until(
-//            ExpectedConditions.visibilityOfElementLocated(CartLocators.CART_QUANTITY_BADGE)
-//        );
-//        return Integer.parseInt(badge.getText().trim());
-//    }
-//
-//    /**
-//     * Navigate to cart page by clicking cart icon
-//     */
-//    public void navigateToCart() {
-//        WebElement cartIcon = wait.until(
-//            ExpectedConditions.elementToBeClickable(CartLocators.CART_ICON)
-//        );
-//        cartIcon.click();
-//    }
-//
-//    /**
-//     * Get product title shown in cart
-//     * @return product title string
-//     */
-//    public String getCartProductTitle() {
-//        WebElement title = wait.until(
-//            ExpectedConditions.visibilityOfElementLocated(CartLocators.CART_PRODUCT_TITLE)
-//        );
-//        return title.getText().trim();
-//    }
-//
-//    /**
-//     * Get product price shown in cart
-//     * @return price string
-//     */
-//    public String getCartProductPrice() {
-//        WebElement price = wait.until(
-//            ExpectedConditions.visibilityOfElementLocated(CartLocators.CART_PRODUCT_PRICE)
-//        );
-//        return price.getText().trim();
-//    }
-//
-//    /**
-//     * Click Remove button to delete product from cart
-//     */
-//    public void removeProductFromCart() {
-//        WebElement removeBtn = wait.until(
-//            ExpectedConditions.elementToBeClickable(CartLocators.REMOVE_PRODUCT_BUTTON)
-//        );
-//        removeBtn.click();
-//    }
-//
-//    /**
-//     * Check if empty cart message is displayed
-//     * @return true if cart is empty
-//     */
-//    public boolean isCartEmpty() {
-//        try {
-//            WebElement emptyMsg = wait.until(
-//                ExpectedConditions.visibilityOfElementLocated(CartLocators.EMPTY_CART_MESSAGE)
-//            );
-//            return emptyMsg.isDisplayed();
-//        } catch (Exception e) {
-//            return false;
-//        }
-//    }
-//	
-//    
-//    
-    
+	
     public int getQuantityFromField() {
         String value = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(CartLocators.QUANTITY_INPUT)
