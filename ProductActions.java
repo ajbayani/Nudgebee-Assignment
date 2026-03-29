@@ -2,12 +2,15 @@ package java1;
 
 import java1.ProductLocators;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductActions {
@@ -20,112 +23,82 @@ public class ProductActions {
 		this.wait = wait;
 	}
 
-	/**
-	 * Search for a product by keyword
-	 * 
-	 * @param keyword — search term
-	 * @throws InterruptedException 
-	 */
-	public void searchProduct(String keyword) throws InterruptedException {
+	// Wait for page to fully load (using search bar as anchor element)
+	public void waitForPageToLoad() {
+		wait.until(ExpectedConditions.visibilityOfElementLocated(ProductLocators.SEARCH_INPUT));
+	}
+
+	// Click search input
+	public void clickSearchInput() {
+		WebElement searchInput = wait.until(ExpectedConditions.elementToBeClickable(ProductLocators.SEARCH_INPUT));
+		searchInput.click();
+	}
+
+	// Search product
+	public void searchProduct(String keyword) {
 		WebElement searchInput = wait
-				.until(ExpectedConditions.visibilityOfElementLocated( ProductLocators.SEARCH_INPUT));
-	
+				.until(ExpectedConditions.visibilityOfElementLocated(ProductLocators.SEARCH_INPUT));
+
+		searchInput.clear();
 		searchInput.sendKeys(keyword);
 
 		WebElement searchBtn = wait.until(ExpectedConditions.elementToBeClickable(ProductLocators.SEARCH_BUTTON));
 		searchBtn.click();
-	}
-	
-	public void SearchProduct (String keyword) {
+		 wait.until(ExpectedConditions.textToBePresentInElementLocated(
+		            ProductLocators.PRODUCT_CARD_TITLE, keyword));
+}
 
-	    WebElement searchInput = wait.until(
-	        ExpectedConditions.visibilityOfElementLocated(ProductLocators.SEARCH_INPUT)
-	    );
-
-	    // Clear existing value
-	    ((JavascriptExecutor) driver).executeScript("arguments[0].value='';", searchInput);
-
-	    // Set value using JavaScript (no events triggered)
-	    ((JavascriptExecutor) driver).executeScript(
-	        "arguments[0].value = arguments[1];",
-	        searchInput,
-	        keyword
-	    );
-
-	    // Click search button using JavaScript
-	    WebElement searchBtn = wait.until(
-	        ExpectedConditions.elementToBeClickable(ProductLocators.SEARCH_BUTTON)
-	    );
-
-	    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", searchBtn);
+	// Get all product titles
+	public List<String> getAllProductTitles() {
+		try {
+			wait.until(ExpectedConditions.visibilityOfElementLocated(ProductLocators.PRODUCT_CARD_TITLE));
+			List<WebElement> elements = driver.findElements(ProductLocators.PRODUCT_CARD_TITLE);
+			return elements.stream().map(e -> e.getText().trim()).filter(text -> !text.isEmpty()).toList();
+		} catch (StaleElementReferenceException e) {
+			List<WebElement> elements = driver.findElements(ProductLocators.PRODUCT_CARD_TITLE);
+			return elements.stream().map(j -> j.getText().trim()).filter(text -> !text.isEmpty()).toList();
+		}
 	}
 
-	/**
-	 * Click on Hand Tools category filter
-	 */
-	public void applyHandToolsFilter() {
-		WebElement categoryFilter = wait
-				.until(ExpectedConditions.elementToBeClickable(ProductLocators.CATEGORY_HAND_TOOLS));
-		categoryFilter.click();
+	// Click "Pliers" category
+	public void clickPliersCategory() throws InterruptedException {
+		// By CATEGORY_PLIERS = By.xpath("//label[contains(text(),'Pliers')]");
+
+		WebElement category = wait
+				.until(ExpectedConditions.elementToBeClickable(By.xpath("//label[contains(text(),'Pliers')]")));
+		category.click();
+		Thread.sleep(4000);
 	}
 
-	/**
-	 * Click on Power Tools category filter
-	 */
-	public void applyPowerToolsFilter() {
-		WebElement categoryFilter = wait
-				.until(ExpectedConditions.elementToBeClickable(ProductLocators.CATEGORY_POWER_TOOLS));
-		categoryFilter.click();
+	// Get "No Results" message text
+	public String getNoResultsMessage() {
+		List<WebElement> elements;
+		wait.until(ExpectedConditions.visibilityOfElementLocated(ProductLocators.NO_RESULTS_MESSAGE));
+		elements = driver.findElements(ProductLocators.NO_RESULTS_MESSAGE);
+
+		if (elements.size() > 0) {
+			return elements.get(0).getText().trim();
+		}
+		return null;
 	}
 
-	/**
-	 * Get count of product cards currently visible on page
-	 * 
-	 * @return int — number of product cards
-	 */
-	public int getProductCardCount() {
-		List<WebElement> cards = wait
-				.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(ProductLocators.PRODUCT_CARDS));
-		return cards.size();
-	}
+	List<String> getAllcatProductTitles() {
+		List<String> titles = new ArrayList<>();
 
-	/**
-	 * Click the first product card in search results
-	 */
-	public void clickFirstProduct() {
-		WebElement firstProduct = wait.until(ExpectedConditions.elementToBeClickable(ProductLocators.FIRST_PRODUCT));
-		firstProduct.click();
-	}
+		List<WebElement> Categorayelements = wait
+				.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(ProductLocators.PRODUCT_CARD_TITLE));
 
-	/**
-	 * Get product name from product detail page
-	 * 
-	 * @return product name string
-	 */
-	public String getProductDetailName() {
-		WebElement productName = wait
-				.until(ExpectedConditions.visibilityOfElementLocated(ProductLocators.PRODUCT_DETAIL_NAME));
-		return productName.getText().trim();
-	}
+		for (int i = 0; i < Categorayelements.size(); i++) {
+			try {
+				titles.add(Categorayelements.get(i).getText().trim());
+			} catch (StaleElementReferenceException e) {
+				// 🔁 Re-fetch elements if stale
+				Categorayelements = driver.findElements(ProductLocators.PRODUCT_CARD_TITLE);
+				titles.add(Categorayelements.get(i).getText().trim());
+			}
+		}
 
-	/**
-	 * Get product price from product detail page
-	 * 
-	 * @return price string
-	 */
-	public String getProductDetailPrice() {
-		WebElement price = wait
-				.until(ExpectedConditions.visibilityOfElementLocated(ProductLocators.PRODUCT_DETAIL_PRICE));
-		return price.getText().trim();
-	}
-
-	/**
-	 * Click Add to Cart button on product detail page
-	 */
-	public void clickAddToCart() {
-		WebElement addToCartBtn = wait
-				.until(ExpectedConditions.elementToBeClickable(ProductLocators.ADD_TO_CART_BUTTON));
-		addToCartBtn.click();
+		return titles.stream().filter(text -> !text.isEmpty()).toList();
 	}
 
 }

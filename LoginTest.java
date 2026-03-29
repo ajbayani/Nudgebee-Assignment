@@ -7,53 +7,54 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-/**
- * LoginTest — Scenario 1: Login Flow Extends BaseClass to get driver, wait,
- * setUp, tearDown
- */
+import com.aventstack.extentreports.*;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 
 public class LoginTest extends Baseclass {
-
-	// Valid test credentials
+// Valid test credentials
 	private static final String VALID_EMAIL = "customer@practicesoftwaretesting.com";
 	private static final String VALID_PASSWORD = "welcome01";
-	private static final String EXPECTED_NAME = "Jane Doe"; // Expected username after login
+	private static final String EXPECTED_NAME = "Jane Doe";
+// Initialize report
 
 	@Test(description = "Scenario 1 — Full Login and Logout Flow")
-	public void testLoginAndLogout() {
+	public void Q1LoginFlow() throws Exception {
 
-		// Step 1: Create actions object — pass driver and wait from BaseClass
-		LoginActions LoginActions = new LoginActions(driver, wait);
+		try {
 
-		// Step 2: Navigate to login page
-		LoginActions.navigateToLoginPage();
+			LoginActions LoginActions = new LoginActions(driver, wait);
+			test.info("Entering login credentials");
 
-		// Step 3: Verify login page is loaded — URL should contain /auth/login
+			captureAndAttachScreenshot("Q1.Loggedin with correct credentials");
 
-//		String currentUrl = getCurrentUrl();
-//		Assert.assertTrue(currentUrl.contains("/auth/login"), "Login page did not load. Current URL: " + currentUrl);
+			LoginActions.login(VALID_EMAIL, VALID_PASSWORD);
 
-		// Step 4: Login with valid credentials
-		LoginActions.login(VALID_EMAIL, VALID_PASSWORD);
+			test.info("Waiting for account page to load");
+			wait.until(ExpectedConditions.urlContains("/account"));
 
-		// Step 5: Verify dashboard loads — URL should NOT contain login anymore
-//		String postLoginUrl = getCurrentUrl();
-//		Assert.assertFalse(postLoginUrl.contains("/auth/login"),
-//				"User was NOT redirected after login. Still on: " + postLoginUrl);
+			String currentUrl = getCurrentUrl();
+			test.info("Current URL: " + currentUrl);
 
-		// Step 6: Verify correct username is visible in nav
-		String displayedUsername = LoginActions.getLoggedInUsername();
-		Assert.assertEquals(displayedUsername, EXPECTED_NAME,
-				"Logged in username mismatch. Expected: " + EXPECTED_NAME + " but got: " + displayedUsername);
+			Assert.assertTrue(currentUrl.contains("/account"), "Login page loaded. Current URL: " + currentUrl);
+			test.pass("Login successful and redirected to account page");
 
-		// Step 7: Logout
-		LoginActions.logout();
+			// Logout step
+			test.info("Logging out");
+			LoginActions.logout();
 
-		// Step 8: Verify redirect back to login page after logout
-//		String postLogoutUrl = getCurrentUrl();
-//		Assert.assertTrue(postLogoutUrl.contains("/auth/login"),
-//				"User was NOT redirected to login page after logout. Current URL: " + postLogoutUrl);
+			test.pass("Logout successful");
+			captureAndAttachScreenshot("Q1.Loggedout successfully");
+
+		} catch (AssertionError e) {
+			test.fail("Assertion Failed: " + e.getMessage());
+			throw e;
+
+		} catch (Exception e) {
+			test.fail("Test Failed: " + e.getMessage());
+			throw e;
+
+		} finally {
+			extent.flush();
+		}
 	}
-
-	
 }

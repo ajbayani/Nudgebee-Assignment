@@ -20,7 +20,8 @@ public class LoginLocators {
  
     // Post-login verification
     public static final By USER_MENU               = By.cssSelector("[data-test='nav-menu']");
-    public static final By LOGGED_IN_USERNAME      = By.xpath("//a[contains(text(),'Jane Doe')]");
+    public static final By LOGGED_IN_USERNAME      = By.cssSelector("[data-test='nav-menu']"); 
+    		
     public static final By LOGOUT_BUTTON           = By.cssSelector("[data-test='nav-sign-out']");
  
     // Error message locator

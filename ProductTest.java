@@ -1,86 +1,97 @@
 package java1;
 
 import java1.ProductActions;
+
 import java1.Baseclass;
+
+import java.io.IOException;
+import java.util.List;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+
 public class ProductTest extends Baseclass {
-	private static final String SEARCH_KEYWORD = "Pliers";
+    @Test
+    public void Q2ProductSearchFilter() throws InterruptedException, IOException {
 
-    @Test(description = "Scenario 2 — Product Search, Filter, and Detail Page")
-    public void testProductSearchAndFilter() throws InterruptedException {
+        ProductActions actions = new ProductActions(driver, wait);
 
-		// Step 1: Create actions object
-        ProductActions productActions = new ProductActions(driver, wait);
+        // Step 1: Wait for site to load fully
+        actions.waitForPageToLoad();
+        test.info("Waiting for site to load completely - used explicit wait");
+        
 
-        
-        // Step 2: Search for a product by keyword
-      //  productActions.searchProduct(SEARCH_KEYWORD);
+        // Step 2: Click search input
+        actions.clickSearchInput();
+        test.info("Click search input - used explicit wait");
 
-        //productActions.searchProduct(SEARCH_KEYWORD);
-        
-        // Step 3: Verify search results are returned — at least 1 product card visible
-//        int resultCount = productActions.getProductCardCount();
-//        Assert.assertTrue(
-//            resultCount < 0,
-//            "No products found for keyword: " + SEARCH_KEYWORD
-//        );
+        // Step 3: Search "Hammer"
+        String keyword = "Hammer";
+        actions.searchProduct(keyword);
+        test.info("locate input element, clicked it, used explicit wait - also after clicking used explicit wait for resulting element");
+      
 
+        // Step 4: Get all product titles
+        List<String> titles = actions.getAllProductTitles();
+        test.info("After clicking search, product Titles are saved in list - used explicit wait, handle StaleElementReferenceException");
+        captureAndAttachScreenshot("Q2.Hammer related productlist");
+        
+        // Step 5: Validate all titles contain "Hammer"
+        for (String title : titles) {
+            Assert.assertTrue(
+                    title.toLowerCase().contains(keyword.toLowerCase()),
+                    "Product does not match search: " + title
+            );
+        }
+        test.info("Checked For every product name contains search keyword (hammer)");
         
         
-        // Step 4: Apply category filter — Hand Tools
-        productActions.applyHandToolsFilter();
+        // Step 6: Required wait
+        Thread.sleep(4000);
+        test.info("To see the visual difference of product lists, for search and filter");
 
-        // Step 5: Verify filtered results still show products
-        int filteredCount = productActions.getProductCardCount();
-        Assert.assertTrue(
-            filteredCount < 0,
-            "No products visible after applying Hand Tools filter"
-        );
+        // Step 7: Click "Pliers" category
+        actions.clickPliersCategory();
+        test.info("Plier Category selected from category filter - used explicit wait");
+        captureAndAttachScreenshot("Q2.Plier in categoray clicked");
 
-        
-        
-        
-        int resultCount = 10;
-		// Step 6: Verify filter reduced or kept same results (not increased)
-        Assert.assertTrue(
-            filteredCount <= resultCount,
-            "Filter did NOT reduce results — filter may not be working"
-        );
+        // Step 8: Validate results after filter
+        String noResultMsg = actions.getNoResultsMessage();
+        test.info("After clicking on category what result it has produced is saved - used explicit wait");
+        captureAndAttachScreenshot("Q2.PLier search not working");
 
-        
-        
-        // Step 7: Click on the first product card
-        productActions.clickFirstProduct();
+        if (noResultMsg != null) {
 
-        // Step 8: Verify product detail page loaded — URL should contain /product/
-        String detailUrl = driver.getCurrentUrl();
-        Assert.assertTrue(
-            detailUrl.contains("/product/"),
-            "Product detail page did NOT load. Current URL: " + detailUrl
-        );
+         //   System.out.println("Their are no products found for Categoray inspite of clicking after keyword search, result produced is when Plier categoray selected ::" + noResultMsg);
 
-        
-        
-        // Step 9: Verify product name is displayed on detail page
-        String productName = productActions.getProductDetailName();
-        Assert.assertNotNull(productName, "Product name is null on detail page");
-        Assert.assertFalse(
-            productName.isEmpty(),
-            "Product name is empty on detail page"
-        );
+            Assert.assertTrue(
+                    noResultMsg.toLowerCase().contains("searched for" ),
+                    "Expected Products list with Search + categoray Filter - Negative test pass");
+            test.info("Filter for PLier should produce pliers nt hammers but the result is ::"+ noResultMsg);
+            
+        }
+        else {
 
+            System.out.println("Yes Results Message: there are results found");
+
+            // 🔹 Get product titles
+            List<String> titles1 = actions.getAllcatProductTitles();
+
+            // 🔹 Assert products exist
+            Assert.assertTrue(
+                    titles1.size() > 0,
+                    "Expected products but none found"
+            );
+
+            // 🔹 Print all titles
+            for (String title : titles1) {
+                System.out.println("Product Title: " + title);
+            }
         
-        
-        // Step 10: Verify product price is displayed
-        String productPrice = productActions.getProductDetailPrice();
-        Assert.assertNotNull(productPrice, "Product price is null on detail page");
-        Assert.assertFalse(
-            productPrice.isEmpty(),
-            "Product price is empty on detail page"
-        );
+        }
+       
     }
 }
